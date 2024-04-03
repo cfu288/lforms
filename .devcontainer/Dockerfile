@@ -15,7 +15,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/apt/lists.d/* 
 
-RUN curl --silent --location https://deb.nodesource.com/setup_20.x | bash - \
+ARG NODE_VERSION="14"
+
+RUN curl --silent --location https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs \
     # remove useless files from the current layer
     && rm -rf /var/lib/apt/lists/* \
