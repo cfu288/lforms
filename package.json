@@ -42,6 +42,7 @@
     "test:e2e:lforms-server:open": "start-server-and-test start:lforms-dev http://localhost:$npm_package_config_testPort cy:open",
     "test:e2e:open": "npm run test:e2e:fhir-server:open",
     "test": "npm run test:unit && npm run test:e2e",
+    "test:devcontainer": "xvfb-run npm run test",
     "test-coverage": "ng test --no-watch --code-coverage",
     "cy:open": "cypress open",
     "cy:run": "cypress run",

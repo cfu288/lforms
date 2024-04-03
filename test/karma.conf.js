@@ -91,11 +91,12 @@ module.exports = function(config) {
     customLaunchers: {
       ChromeHeadless_without_password_security: {
         base: 'ChromeHeadless',
-        flags: ['--password-store=basic']
+        // '--no-sandbox' required for devcontainer
+        flags: ['--no-sandbox', '--password-store=basic']
       },
       Chrome_without_password_security: {
         base: 'Chrome',
-        flags: ['--password-store=basic']
+        flags: ['--no-sandbox', '--password-store=basic']
       },
     },
 
