@@ -1,40 +1,58 @@
+# Define the base image variant
 ARG VARIANT="jammy"
 FROM buildpack-deps:${VARIANT}-curl
 
-RUN groupadd --gid 1000 node \
-  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+# Add the `lforms-dev` user
+ARG USERNAME=lforms-dev
 
-# Install basic development tools
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends less man-db sudo software-properties-common \
-    && apt-get -y install --no-install-recommends curl gnupg build-essential xdg-utils \ 
-    # chromium-browser \
-    && apt-get -y install --no-install-recommends xvfb git \
-    # && apt-get -y install --no-install-recommends libgconf2-4 libnss3-1d libxss1 \
-    # remove useless files from the current layer
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/lib/apt/lists.d/* 
+# Create a new group and user 'node'
+RUN groupadd --gid 1000 ${USERNAME} \
+  && useradd --uid 1000 --gid ${USERNAME} --shell /bin/bash --create-home ${USERNAME}
 
-ARG NODE_VERSION="14"
-
-RUN curl --silent --location https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs \
-    # remove useless files from the current layer
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/lib/apt/lists.d/* \
-    # smoke tests
-    && node --version \
-    && npm --version
-
-# Set the Chrome repo.
+# Add Google's public key and set the Chrome repo
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
 
-# Install Chrome.
-RUN apt-get update && apt-get -y install google-chrome-stable
+# Update package list and install development tools
+RUN apt update && export DEBIAN_FRONTEND=noninteractive \
+    && apt -y install --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+        gnupg \
+        google-chrome-stable \
+        less \
+        man-db \
+        software-properties-common \
+        sudo \
+        xdg-utils \
+        xvfb \
+    # Clean up unnecessary files to reduce image size
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists.d/* 
 
-# Set CHROME_BIN environment variable
+# Define the Node.js version to install
+ARG NODE_VERSION="14"
+
+# Install Node.js
+RUN curl --silent --location https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    && apt install -y nodejs \
+    # Clean up unnecessary files to reduce image size
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists.d/* \
+    # Verify Node.js and npm installation
+    && node --version \
+    && npm --version
+
+# Set the path to the Chrome binary
 ENV CHROME_BIN=/usr/bin/google-chrome-stable
+
+# Preserve bash history across rebuilds
+RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
+    && mkdir /commandhistory \
+    && touch /commandhistory/.bash_history \
+    && chown -R $USERNAME /commandhistory \
+    && echo "$SNIPPET" >> "/home/$USERNAME/.bashrc"
 
 # Set `DEVCONTAINER` environment variable to help with orientation
 ENV DEVCONTAINER=true

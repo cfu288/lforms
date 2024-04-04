@@ -6,13 +6,16 @@
   },
   "customizations": {
     "vscode": {
-      "extensions": ["ms-azuretools.vscode-docker"]
-    }
+      "extensions": ["ms-azuretools.vscode-docker"],
+    },
   },
-  "remoteUser": "node",
+  "remoteUser": "lforms-dev",
   "runArgs": ["--ulimit=nofile=1024:8192", "--cpus=8", "--memory=16g"],
-  "postCreateCommand": "npm install && npx cypress install",
   "containerEnv": {
-    "TZ": "America/New_York"
-  }
+    "TZ": "America/New_York",
+  },
+  "mounts": [
+    "source=lforms-bashhistory,target=/commandhistory,type=volume",
+  ],
+  "postCreateCommand": "npm install && npx cypress install",
 }
