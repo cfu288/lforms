@@ -5,7 +5,7 @@ FROM buildpack-deps:${VARIANT}-curl
 # Add the `lforms-dev` user
 ARG USERNAME=lforms-dev
 
-# Create a new group and user 'node'
+# Create a new group and user 'lforms-dev'
 RUN groupadd --gid 1000 ${USERNAME} \
   && useradd --uid 1000 --gid ${USERNAME} --shell /bin/bash --create-home ${USERNAME}
 
@@ -19,13 +19,8 @@ RUN apt update && export DEBIAN_FRONTEND=noninteractive \
         build-essential \
         curl \
         git \
-        gnupg \
         google-chrome-stable \
-        less \
-        man-db \
         software-properties-common \
-        sudo \
-        xdg-utils \
         xvfb \
     # Clean up unnecessary files to reduce image size
     && rm -rf /var/lib/apt/lists/* \
